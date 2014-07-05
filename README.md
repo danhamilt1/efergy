@@ -1,7 +1,7 @@
 # A decoder for the efergy elite meter protocol#
 The efergy meter is a home electrical power meter. It uses a clamp meter on the mains input to the distribution board. The clamp measures the current and every 6seconds sends off the reading using FSK on 433MHz. Normally a small display picks this up and intergates up the power used to give you a display showing how much power (VA really) you are using.
 
-* The meter i have is a npower meter which appears to be a re-branded efergy elite. 
+* The meter i have is a npower elite 2.0R meter which appears to be a re-branded efergy elite. 
 
 We use the an FSK/FM demodulator to decode the signal from the clamp meter to provide bits to this program. This allows us to see more real time data than that available from the actual display. We can see power every 6 seconds, so even a switch on/off of a light will be noticed.
 
