@@ -1,7 +1,7 @@
 # A decoder for the efergy elite meter protocol#
 The efergy meter is a home electrical power meter. It uses a clamp meter on the mains input to the distribution board. The clamp measures the current and every 6seconds sends off the reading using FSK on 433MHz. Normally a small display picks this up and intergates up the power used to give you a display showing how much power (VA really) you are using.
 
-* The meter i have is an npower elite 2.0R meter which appears to be a re-branded efergy elite. 
+* ####The meter i have is an npower elite 2.0R meter which appears to be a re-branded efergy elite.
 
 We use a FSK/FM demodulator to decode the signal from the clamp meter to provide bits to this program. This allows us to see more real time data than that available from the normal display. 
 
@@ -34,6 +34,7 @@ For anybody to copy and use the code.
     * pthread
     * rtl_fm for demodulated data
     * something to feed the rtl_fm with samples, dvb-t usb stick?
+    * raspberry pi (or some other Linux box)
 * Database configuration
     * There is a script rrdCreate.sh which gives an example rrd database.
     * The default logging is every 60 seconds.
@@ -49,6 +50,14 @@ For anybody to copy and use the code.
     * highcharts
 * Make the program directly interface to rtl_fm 
 
+### Links ###
+The following were useful when creating this program.
+
+* [Original link I followed](http://rtlsdr-dongle.blogspot.com.au/2013/11/finally-complete-working-prototype-of.html?) 
+* [Blog post that covers some more points](http://goughlui.com/?p=5109)
+* [Description of the packet protocol](http://electrohome.pbworks.com/w/page/34379858/Efergy-Elite-Wireless-Meter-Hack)
+* [Installing a dvb-t / rtl_fm on a raspberry pi](http://zr6aic.blogspot.co.uk/2013/02/setting-up-my-raspberry-pi-as-sdr-server.html)
+* [highcharts plotting of data](http://blog.tafkas.net/2012/10/03/gathering-and-charting-temperatures-using-rrdtool-and-highcharts/) - still todo
 
 ### Who do I talk to? ###
 
