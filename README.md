@@ -41,6 +41,13 @@ For anybody to copy and use the code.
 * Deployment instructions
     * Left to the user.
 
+### TODO ###
+* Need something to plot the data
+    * gnuplot
+    * highcharts
+* Make the program directly interface to rtl_fm 
+
+
 ### Who do I talk to? ###
 
 * Neil Johnston
