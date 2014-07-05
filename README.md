@@ -9,7 +9,7 @@ For anybody to copy and use the code.
 * It was written for fun, so uses C++ just to play (no classes involved).
 * It will output statistics of times between packets.
 * It can log to an rrd database if required.
-* It will log every 60 seconds by default, the maximum power in the last interval is used.
+* It will log every 60 seconds by default, the maximum power in the last interval is logged.
 * It can print out all packets that pass the checksum in debug mode.
 * The code contains a description of the algorithm for packet recovery.
 
