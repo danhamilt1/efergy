@@ -41,6 +41,7 @@ For anybody to copy and use the code.
 * How to run tests
     * efergy -h will return the command line options.
     * rtl_fm -Alut -f433550000 -s200000 -r96000 -g10 2> /dev/null | ./efergy -a0x0230ad -s -rtt.rrd power.log
+    * The -a0x0230ad is my meters address. Removing this will default to logging all packets that pass the checksum.
 * Deployment instructions
     * Left to the user.
 
