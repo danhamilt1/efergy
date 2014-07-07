@@ -151,7 +151,7 @@
 #define MIN_ONE_PULSE_WIDTH (10)
 
 #define DEFAULT_VOLTAGE (230.0)
-#define DEFAULT_LOG_PERIOD (60)
+#define DEFAULT_LOG_PERIOD (1)
 #define DEFAULT_STAT_PACKETS (100)
 
 // use this to use valgrind without the leaks in rrd
@@ -410,14 +410,15 @@ void* logData(void *arg)
 		}
 	}
 
-	// sync logging to the minute
-	while ( (time(0) % 60) && !_exitNow )
-	{
-		sleep(1);
-	}
-	
 	while(!_exitNow)
 	{
+		
+		// sync logging to the minute
+		while ( (time(0) % 60) && !_exitNow )
+		{
+			sleep(1);
+		}
+		
 		// lock access to the global _power
 		pthread_mutex_lock(&dataLock);
 		power=_power;
@@ -457,14 +458,14 @@ void* logData(void *arg)
 #endif
 		}
 		
-		lastPower=power;
-		
 		// wait for next logging time, but allow quick exit
-		int delay=params->delay;
+		int delay=(60*params->delay)-10; 
 		while(!_exitNow && delay--)
 		{
 			sleep(1);
 		}
+		
+		lastPower=power;
 	}
 	fprintf(stderr, "Logging thread exit\n");
 
@@ -498,7 +499,7 @@ void outputStats(unsigned long long totalPackets,
 
 void printHelp(char *programName)
 {
-	fprintf(stderr, "Usage: %s [-aAdhlsv] logFile\n", programName);
+	fprintf(stderr, "Usage: %s [-aAdhlrsv] logFile\n", programName);
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Efergy meter decoder, requires rtl_fm as input\n");
 	fprintf(stderr, "\n");
@@ -506,7 +507,7 @@ void printHelp(char *programName)
 	fprintf(stderr, "-A    : All meter addresses used\n");
 	fprintf(stderr, "-d    : Debug, prints all cksum passed packets\n");
 	fprintf(stderr, "-h    : This help\n");
-	fprintf(stderr, "-l    : Log period in seconds, default %d\n", 
+	fprintf(stderr, "-l    : Log period in minutes, default %d\n", 
 								DEFAULT_LOG_PERIOD);
 	fprintf(stderr, "-r x  : enable rrd logging to database file x\n");		
 	fprintf(stderr, "-s    : Stats every %d packets to stats.txt\n", 
@@ -570,7 +571,7 @@ int main(int argc, char **argv)
 				}
 				else
 				{
-					fprintf(stderr, "Using %dseconds as log period\n", logPeriod);
+					fprintf(stderr, "Using %dminutes as log period\n", logPeriod);
 				}
 				break;
 			}
