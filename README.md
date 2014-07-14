@@ -49,7 +49,8 @@ For anybody to copy and use the code.
 * Need something to plot the data
     * gnuplot
     * highcharts
-* Make the program directly interface to rtl_fm 
+* Make the program directly interface to rtl_fm.
+* Add in accumulating power logging. Currently running at around 98.5 receive of all Tx'd packets so error would be less than 1%. Get better than 99.5% if i include stats for only 1 or 2 missed packets.
 
 ### Links ###
 The following were useful when creating this program.
