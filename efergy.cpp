@@ -83,7 +83,7 @@
  * 
  * Algorithm for protocol byte recovery
  * ====================================
- * 	1. detect the start pulse
+ *  1. detect the start pulse
  *  2. look for a negative edge, this is the sync for the data packet
  *  3. count ones seen
  *  4. on negative edge compare number of ones to one/zero threshold
@@ -111,9 +111,9 @@
  * =======
  * Tested with a recording of the output of rtl_fm.
  * 
- * 	rtl_fm -Alut -f433550000 -s200000 -r96000 -g19.7 | tee efergy_fm.raw > efergy
+ * 	rtl_fm -Alut -f433550000 -s200000 -r96000 -g19.7 | tee efergy_fm.raw > efergy.raw
  * 
- * The 0Alut saved 50% cpu from not using it, went down to 25% 
+ * The -Alut saved 50% cpu on the pi from not using it, went down to 25% 
  * 
  * Wait until some data appears then we have a file with good test data.
  * File efergy.raw can then be used for regression testing. 
@@ -135,15 +135,17 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <assert.h>
+#include <cassert>
 #include <string>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <time.h>
-#include <pthread.h>
-#include <signal.h>
+#include <cstring>
+#include <cerrno>
+#include <ctime>
+#include <csignal>
 #include <map>
+#include <cmath>
+
+#include <unistd.h>
+#include <pthread.h>
 #include <rrd.h>   // rrd may require apt-get install librrd-dev 
 
 #define LENGTH_PROTOCOL_BYTES (8)
@@ -174,8 +176,7 @@ bool _exitNow=false;
 
 // some stats on times between packets
 typedef std::map<unsigned int, unsigned long long, 
-					std::less<unsigned int> > mapOfDelayCounts;
-
+		std::less<unsigned int> > mapOfDelayCounts;
 
 static void signalHandler(int signal)
 {
@@ -205,7 +206,7 @@ double getPower(unsigned char * currentBytes, float voltage)
 		
 	// scaling byte conversion
 	static double scaling[15]={1,2,4,8,16,32,64,128,256,512,1024,
-								2048,4096,8192,16384};
+					2048,4096,8192,16384};
 
 	double power = 0.0;
 	double current = static_cast<double>(currentBytes[0])*256.0 + 
@@ -233,7 +234,7 @@ double getPower(unsigned char * currentBytes, float voltage)
 }
 
 bool checkAddress(unsigned char *addressBytes,  
-						unsigned char *address, int length)
+			unsigned char *address, int length)
 {
 	bool match=false;
 	if(memcmp(addressBytes, address, length)==0)
@@ -364,10 +365,10 @@ std::string getDateTime()
 	time_t now=time(0);
 	struct tm *timeNow;
 	timeNow=gmtime(&now);
-    char buffer[80]={0};
-    strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeNow);
-    if(buffer[79]!=0)
-    {
+    	char buffer[80]={0};
+    	strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeNow);
+    	if(buffer[79]!=0)
+    	{
 		fprintf(stderr, "Buffer overrun in strftime()\n");
 		exit(1);
 	}
@@ -471,7 +472,8 @@ void* logData(void *arg)
 
 	delete [] rrdCommand;
 	delete [] rrdFile;
-    return NULL;
+    
+	return NULL;
 }
 
 void outputStats(unsigned long long totalPackets, 
@@ -486,7 +488,7 @@ void outputStats(unsigned long long totalPackets,
 		fprintf(statsF, "passed addr  : %llu\n", ourPackets);
 		fprintf(statsF, "Offsets, passed address packets\n");
 		std::map<unsigned int, unsigned long long>::const_iterator stat;
-		for(stat=statsGood.begin();	stat!=statsGood.end(); stat++)
+		for(stat=statsGood.begin(); stat!=statsGood.end(); stat++)
 		{
 			double pc=(100*static_cast<double>(stat->second))/ourPackets;
 			fprintf(statsF, "\t%u sec, %llu, %.2f%%\n", 
@@ -494,6 +496,24 @@ void outputStats(unsigned long long totalPackets,
 		}
 		fclose(statsF);
 	}
+	return;
+}
+
+void accumulatePower(double power)
+{
+	static double _totalPower=0.0;
+	static time_t _lastTime=time(0);
+	
+	time_t now=time(0);
+	
+	// number of seconds between last and current
+	double diff=difftime(now, _lastTime);
+	diff=floor( (fabs(diff)+3) /6);
+
+	// totaling in kw/hr
+	_totalPower+=(power/600000)*diff;
+	fprintf(stdout, "%.3f %.0f %.1f\n", _totalPower, power, diff);
+	_lastTime=now;
 	return;
 }
 
@@ -540,8 +560,8 @@ int main(int argc, char **argv)
 	// parse command line parameters
 	opterr = 0;
 	int command;
-    while ((command = getopt (argc, argv, "a:Adhl:r:sv:")) != -1)
-    {
+    	while ((command = getopt (argc, argv, "a:Adhl:r:sv:")) != -1)
+    	{
 		switch (command)
 		{
 			case 'h':
@@ -565,7 +585,7 @@ int main(int argc, char **argv)
 			{
 				if(sscanf(optarg, "%u", &logPeriod)!=1)
 				{
-					fprintf(stderr, "Failed, can't convert '%s' from -l option to seconds\n", optarg);
+					fprintf(stderr, "Failed, can't convert '%s' from -l option to minutes\n", optarg);
 					printHelp(argv[0]);
 					exit(1);
 				}
@@ -719,9 +739,9 @@ int main(int argc, char **argv)
 	// reading from stdin, if there is nothing coming in we will hang
 	fprintf(stdout, "Reading from stdin, ctrl-d to close stdin\n");
 	while (!_exitNow && 
-			!feof(stdin) &&
-			getPacket(packet, LENGTH_PROTOCOL_BYTES, stdin)
-			 )
+		!feof(stdin) &&
+		getPacket(packet, LENGTH_PROTOCOL_BYTES, stdin)
+		 )
 	{		
 		totalPackets++;
 		if((totalPackets%DEFAULT_STAT_PACKETS) == 0 )
@@ -758,6 +778,8 @@ int main(int argc, char **argv)
 					_power=power;
 				}
 				pthread_mutex_unlock(&dataLock);
+				
+				accumulatePower(power);
 			}
 
 			if(debug)
@@ -788,3 +810,5 @@ int main(int argc, char **argv)
 	
 	return(0);
 }
+
+
