@@ -148,7 +148,7 @@
 #include <pthread.h>
 
 // comment out to use valgrind without the leaks in rrd
-//#define USE_RRD
+#define USE_RRD
 
 #ifdef USE_RRD
 #include <rrd.h>   // rrd may require apt-get install librrd-dev 
@@ -378,6 +378,18 @@ std::string getDateTime()
 	std::string dateTime=buffer;
 	return(dateTime);
 }
+
+void logLatest(double power)
+{
+	FILE *latest=fopen("latest.txt", "w");
+	if(latest)
+	{
+		std::string timeNow=getDateTime(); 
+		fprintf(latest, "%s, %0.3f\n", timeNow.c_str(), power);
+		fclose(latest);
+	}
+}
+
 
 void* logData(void *arg)
 {
@@ -726,8 +738,8 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		fprintf(stderr, "created logging thread, logging every %useconds\n", 
-							logPeriod);
+		fprintf(stderr, "created logging thread, logging every %u minute%c\n", 
+							logPeriod, (logPeriod>1)?'s':' ');
 	}
 	
 	// packet holds extracted packet data protocol bytes
@@ -737,6 +749,7 @@ int main(int argc, char **argv)
 	unsigned long long passedPackets=0;
 	time_t lastPacketTime=time(0);
 	mapOfDelayCounts statsGood;
+
 
 	// the core of the program, loop until input ends
 	// reading from stdin, if there is nothing coming in we will hang
@@ -771,7 +784,10 @@ int main(int argc, char **argv)
 			
 				// extract the power 
 				power = getPower(&packet[LENGTH_PROTOCOL_BYTES-4], voltage);
-				
+			
+				// log latest to a file
+				logLatest(power);
+	
 				// push the data to the logging thread
 				// we record the maximum power in the logging interval
 				// _power will be zero if it has been logged already

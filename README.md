@@ -61,6 +61,3 @@ The following were useful when creating this program.
 * [Installing a dvb-t / rtl_fm on a raspberry pi](http://zr6aic.blogspot.co.uk/2013/02/setting-up-my-raspberry-pi-as-sdr-server.html)
 * [highcharts plotting of data](http://blog.tafkas.net/2012/10/03/gathering-and-charting-temperatures-using-rrdtool-and-highcharts/) - still todo
 
-### Who do I talk to? ###
-
-* Neil Johnston
