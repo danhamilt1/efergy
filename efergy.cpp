@@ -146,7 +146,13 @@
 
 #include <unistd.h>
 #include <pthread.h>
+
+// comment out to use valgrind without the leaks in rrd
+//#define USE_RRD
+
+#ifdef USE_RRD
 #include <rrd.h>   // rrd may require apt-get install librrd-dev 
+#endif
 
 #define LENGTH_PROTOCOL_BYTES (8)
 #define MIN_SYNC_PULSE_SAMPLE_WIDTH (40)
@@ -155,9 +161,6 @@
 #define DEFAULT_VOLTAGE (230.0)
 #define DEFAULT_LOG_PERIOD (1)
 #define DEFAULT_STAT_PACKETS (100)
-
-// use this to use valgrind without the leaks in rrd
-//#define DONT_LINK_RRD
 
 // logging thread needs access to the power
 // so mutex lock and global variable
@@ -449,7 +452,7 @@ void* logData(void *arg)
 								
 			//fprintf(stdout, "rrd %s %s %s\n", rrdArgs[0], rrdArgs[1], rrdArgs[2]);
 			
-#ifndef DONT_LINK_RRD
+#ifdef USE_RRD
 			if(rrd_update(3, rrdArgs) == -1)
 			{
 				fprintf(stderr, "Error, rrd failed, %s\n", 
