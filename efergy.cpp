@@ -385,7 +385,7 @@ void logLatest(double power)
     if(latest)
     {
         std::string timeNow=getDateTime(); 
-        fprintf(latest, "%s, %0.3f\n", timeNow.c_str(), power);
+        fprintf(latest, "%s, %.0f\n", timeNow.c_str(), power);
         fclose(latest);
     }
 }
@@ -527,7 +527,7 @@ void accumulatePower(double power)
 
     // totaling in kw/hr
     _totalPower+=(power/600000)*diff;
-    fprintf(stdout, "%.3f %.0f %.1f\n", _totalPower, power, diff);
+    fprintf(stdout, "TOTAL: %.3f %.0f %.1f\n", _totalPower, power, diff);
     _lastTime=now;
     return;
 }
@@ -541,6 +541,7 @@ void printHelp(char *programName)
     fprintf(stderr, "-a x  : Address x for filtering, eg 0x123456\n");
     fprintf(stderr, "-A    : All meter addresses used\n");
     fprintf(stderr, "-d    : Debug, prints all cksum passed packets\n");
+    fprintf(stderr, "-D    : Debug, print all packets\n");
     fprintf(stderr, "-h    : This help\n");
     fprintf(stderr, "-l    : Log period in minutes, default %d\n", 
                                 DEFAULT_LOG_PERIOD);
@@ -565,6 +566,7 @@ int main(int argc, char **argv)
 
     // command line options 
     bool debug=false;
+    bool debugAll=false;
     bool ignoreAddress=false;
     bool statsOutput=false;
     std::string addressString;
@@ -575,7 +577,7 @@ int main(int argc, char **argv)
     // parse command line parameters
     opterr = 0;
     int command;
-        while ((command = getopt (argc, argv, "a:Adhl:r:sv:")) != -1)
+        while ((command = getopt (argc, argv, "a:AdDhl:r:sv:")) != -1)
         {
         switch (command)
         {
@@ -586,6 +588,10 @@ int main(int argc, char **argv)
             case 'd':
                 debug=true;
                 fprintf(stderr, "Debug to stdout enabled\n");
+                break;
+            case 'D':
+                debugAll=true;
+                fprintf(stderr, "Debug of all packets to stdout enabled\n");
                 break;
             case 'A':
                 ignoreAddress=true;
@@ -764,7 +770,15 @@ int main(int argc, char **argv)
         {
             outputStats(totalPackets, passedPackets, ourPackets, statsGood);
         }
-        
+       
+        if(debugAll)
+        {
+            fprintf(stdout, "Packet: ");
+            for(int b=0; b<LENGTH_PROTOCOL_BYTES; b++)
+                fprintf(stdout, "%02x ", packet[b]);
+            fprintf(stdout, "\n");
+        }
+ 
         double power=0.0;
         bool passed=checksum(packet, LENGTH_PROTOCOL_BYTES);
         if(passed)
