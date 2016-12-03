@@ -1,3 +1,5 @@
+Repository cloned from original owner at: https://bitbucket.org/neil_johnston/efergy.git
+
 # A decoder for the efergy elite meter protocol#
 The efergy meter is a home electrical power meter. It uses a clamp meter on the mains input to the distribution board. The clamp measures the current and every 6seconds sends off the reading using FSK on 433MHz. Normally a small display picks this up and intergates up the power used to give you a display showing how much power (VA really) you are using.
 
