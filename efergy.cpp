@@ -767,7 +767,7 @@ int main(int argc, char **argv)
 		if(passed)
 		{
 			passedPackets++;
-			if(ignoreAddress || checkAddress(packet, address, sizeof(address)))
+			if(ignoreAddress || checkAddress(&packet[1], address, sizeof(address)))
 			{
 				ourPackets++;
 
